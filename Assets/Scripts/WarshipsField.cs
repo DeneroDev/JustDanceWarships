@@ -6,6 +6,7 @@ using Random = System.Random;
 
 public class WarshipsField : MonoBehaviour
 {
+    private const int TargetCount = 5;
     [SerializeField] private List<WarshipsCell> husbandCells;
     [SerializeField] private List<WarshipsCell> wifeCells;
     [SerializeField] private Transform wifeField;
@@ -16,9 +17,10 @@ public class WarshipsField : MonoBehaviour
     [SerializeField] private SoundsHandler soundsHandler;
     [SerializeField] private SoundsLibrary soundsLibrary;
     [SerializeField] private HintHandler hintHandler;
+    [SerializeField] private FinishScreen finishScreen;
 
     private FieldState _state;
-    private int _scoreHusband = 0;
+    public int _scoreHusband = 0;
     private int _scoreWife = 0;
 
     private void Awake()
@@ -86,6 +88,7 @@ public class WarshipsField : MonoBehaviour
         else
             _scoreHusband++;
         
+        soundsHandler.PauseBackground();
         soundsHandler.Play(soundsLibrary.GetAudioClip(AudioClipName.Hit));
         
         hintHandler.Show($"Испытание {GetNameChallenge(cellType)}");
@@ -94,7 +97,11 @@ public class WarshipsField : MonoBehaviour
             videoPlayerHandler.LoadClip(videoClip);
             loadingScreenHandler.Show(() =>
             {
-                videoPlayerHandler.SetZeroFrame(NextField);
+                videoPlayerHandler.SetZeroFrame(()=>
+                {
+                    soundsHandler.PlayBackground();
+                    NextField();
+                });
                 loadingScreenHandler.Hide(null);
                 videoPlayerHandler.ShowScreen();
             });
@@ -115,6 +122,18 @@ public class WarshipsField : MonoBehaviour
         loadingScreenHandler.Show(() =>
         {
             videoPlayerHandler.HideScreen();
+
+            if (_scoreHusband >= TargetCount
+                || _scoreWife >= TargetCount)
+            {
+                _state = _scoreHusband >= TargetCount ? FieldState.Husband : FieldState.Wife;
+                finishScreen.Show(_scoreHusband, _scoreWife, TargetCount, GetCurrentFieldName());
+                soundsHandler.PauseBackground();
+                soundsHandler.Play(soundsLibrary.GetAudioClip(AudioClipName.Finish));
+                loadingScreenHandler.Hide(null);
+                return;
+            }
+            
             switch (_state)
             {
                 case FieldState.Wife:
@@ -124,7 +143,7 @@ public class WarshipsField : MonoBehaviour
                     ShowWifeField();
                     break;
             }
-            loadingScreenHandler.Hide(()=>hintHandler.Show($"Ход {GetCurrentFieldName()}\nосталось {5 - GetCurrentScore()}"));
+            loadingScreenHandler.Hide(()=>hintHandler.Show($"Ход {GetCurrentFieldName()}"));
         });
     }
 

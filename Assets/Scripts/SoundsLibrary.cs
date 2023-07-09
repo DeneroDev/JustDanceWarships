@@ -4,6 +4,7 @@ public class SoundsLibrary : MonoBehaviour
 {
     [SerializeField] private AudioClip hitSound;
     [SerializeField] private AudioClip missSound;
+    [SerializeField] private AudioClip finishSound;
 
     public AudioClip GetAudioClip(AudioClipName clipName)
     {
@@ -11,6 +12,7 @@ public class SoundsLibrary : MonoBehaviour
         {
             AudioClipName.Hit => hitSound,
             AudioClipName.Miss => missSound,
+            AudioClipName.Finish => finishSound,
             _ => null
         };
     }
@@ -19,5 +21,6 @@ public class SoundsLibrary : MonoBehaviour
 public enum AudioClipName
 {
     Hit,
-    Miss
+    Miss,
+    Finish
 }
