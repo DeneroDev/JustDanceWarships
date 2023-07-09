@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
@@ -19,6 +18,8 @@ public class WarshipsField : MonoBehaviour
     [SerializeField] private HintHandler hintHandler;
 
     private FieldState _state;
+    private int _scoreHusband = 0;
+    private int _scoreWife = 0;
 
     private void Awake()
     {
@@ -79,6 +80,11 @@ public class WarshipsField : MonoBehaviour
     {
         if(videoPlayerHandler.IsShow())
             return;
+
+        if (_state == FieldState.Wife)
+            _scoreWife++;
+        else
+            _scoreHusband++;
         
         soundsHandler.Play(soundsLibrary.GetAudioClip(AudioClipName.Hit));
         
@@ -118,7 +124,7 @@ public class WarshipsField : MonoBehaviour
                     ShowWifeField();
                     break;
             }
-            loadingScreenHandler.Hide(()=>hintHandler.Show($"Ход {GetCurrentFieldName()}"));
+            loadingScreenHandler.Hide(()=>hintHandler.Show($"Ход {GetCurrentFieldName()}\nосталось {5 - GetCurrentScore()}"));
         });
     }
 
@@ -133,6 +139,19 @@ public class WarshipsField : MonoBehaviour
         }
 
         return "";
+    }
+    
+    private int GetCurrentScore()
+    {
+        switch (_state)
+        {
+            case FieldState.Wife:
+                return _scoreWife;
+            case FieldState.Husband:
+                return _scoreHusband;
+        }
+
+        return 0;
     }
 
     private string GetNameChallenge(WarshipsCell.CellType type)

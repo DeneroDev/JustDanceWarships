@@ -18,7 +18,7 @@ public class HintHandler : MonoBehaviour
     public void Show(string text)
     {
         textMeshPro.text = text;
-        _animator.SetTrigger(AppearTriggerId);
-        DOVirtual.DelayedCall(0.01f, ()=>_animator.ResetTrigger(AppearTriggerId));
+        _animator.SetBool(AppearTriggerId, true);
+        DOVirtual.DelayedCall(0.1f, ()=>_animator.SetBool(AppearTriggerId, false));
     }
 }
